@@ -11,6 +11,16 @@ def welcome
   puts 'Welcome to TeePublic!'
 end
 
+def create_products
+  file = File.open('product.json')
+  products_data = JSON.load(file)
+  file.close
+
+  products_data.each do |product_data|
+    Product.create_product(product_data['product_type'], product_data['options'])
+  end
+end
+
 def product_options
   user_input = gets.chomp
   user_inputs = user_input.split(" ")
@@ -21,18 +31,17 @@ def product_options
     color = user_inputs[2]
     size = user_inputs[3]
 
-    all_tshirts = DATA.select {|product_type| product_type['product_type'] == 'tshirt'}
-    all_tshirt_genders = all_tshirts.map {|tshirt| tshirt['options']}.map {|option| option['gender']}.uniq
-    all_tshirt_colors = all_tshirts.map {|tshirt| tshirt['options']}.map {|option| option['color']}.uniq
-    all_tshirt_sizes = all_tshirts.map {|tshirt| tshirt['options']}.map {|option| option['size']}.uniq
+    all_tshirt_genders = Tshirt.all.map(&:gender).uniq
+    all_tshirt_colors = Tshirt.all.map(&:color).uniq
+    all_tshirt_sizes = Tshirt.all.map(&:size).uniq
 
     tshirt_colors = all_tshirt_colors
     tshirt_sizes = all_tshirt_sizes
 
     if all_tshirt_genders.include?(gender)
-      tshirt_with_gender = all_tshirts.select { |tshirt| tshirt['options']['gender'] == gender }
-      tshirt_colors = tshirt_with_gender.map { |tshirt| tshirt['options']['color'] }.uniq
-      tshirt_sizes = tshirt_with_gender.map { |tshirt| tshirt['options']['size'] }.uniq
+      tshirt_with_gender = Tshirt.all.select { |tshirt| tshirt.gender == gender}
+      tshirt_colors = tshirt_with_gender.map(&:color).uniq
+      tshirt_sizes = tshirt_with_gender.map(&:size).uniq
     elsif gender.present?
       tshirt_colors = nil
       tshirt_sizes = nil
@@ -41,8 +50,8 @@ def product_options
   
     if tshirt_colors.present? && tshirt_colors.include?(color)
       tshirt_colors = nil
-      tshirt_with_gender_color = tshirt_with_gender.select { |tshirt| tshirt['options']['color'] == color }
-      tshirt_sizes = tshirt_with_gender_color.map { |tshirt| tshirt['options']['size'] }
+      tshirt_with_gender_color = tshirt_with_gender.select { |tshirt| tshirt.color == color }
+      tshirt_sizes = tshirt_with_gender_color.map(&:size)
     elsif all_tshirt_colors.include?(color)
       tshirt_colors = nil
       tshirt_sizes = nil
@@ -70,8 +79,7 @@ def product_options
   elsif product_type == 'mug'
     type = user_inputs[1]
 
-    all_mugs = DATA.select {|product_type| product_type['product_type'] == 'mug'}
-    all_mug_types = all_mugs.map {|mug| mug['options']}.map {|option| option['type']}
+    all_mug_types = Mug.all.map(&:type).uniq
 
     if type.nil?
       puts "Type: #{all_mug_types.join(', ')}"
@@ -83,13 +91,13 @@ def product_options
   elsif product_type == 'sticker'
     size = user_inputs[1]
     style = user_inputs[2]
-    all_stickers = DATA.select {|product_type| product_type['product_type'] == 'sticker'}
-    all_sticker_sizes = all_stickers.map {|sticker| sticker['options']}.map {|option| option['size']}
-    all_sticker_styles = all_stickers.map {|sticker| sticker['options']}.map {|option| option['style']}
+    
+    all_sticker_sizes = Sticker.all.map(&:size).uniq
+    all_sticker_styles = Sticker.all.map(&:style).uniq
     
     if ['x-small','small','medium','large','x-large'].include?(size)
-      stickers_with_size = all_stickers.select { |sticker| sticker['options']['size'] == size }
-      all_sticker_styles = stickers_with_size.map { |sticker| sticker['options']['style'] }.uniq
+      stickers_with_size = Sticker.all.select { |sticker| sticker.size == size }
+      all_sticker_styles = stickers_with_size.map(&:style).uniq
     elsif size.present?
       all_sticker_styles = nil
       puts "Invalid size: #{size}"
@@ -114,6 +122,7 @@ def product_options
 end
 
 def run
+  create_products
   puts "Please type in a product type and 0 or more options:"
   product_options
 end
