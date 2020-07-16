@@ -9,69 +9,64 @@ FILE.close
 
 def welcome
   puts 'Welcome to TeePublic!'
-  run
 end
 
 def product_options
-  product_options = DATA.uniq {|product_type| product_type['product_type']}.map {|product_type| product_type['product_type']}
-
   user_input = gets.chomp
   user_inputs = user_input.split(" ")
   product_type = user_inputs[0]
 
+  if product_type == 'tshirt'
+    gender = user_inputs[1]
+    color = user_inputs[2]
+    size = user_inputs[3]
 
-    if product_type == 'tshirt'
-      gender = user_inputs[1]
-      color = user_inputs[2]
-      size = user_inputs[3]
+    all_tshirts = DATA.select {|product_type| product_type['product_type'] == 'tshirt'}
+    all_tshirt_genders = all_tshirts.map {|tshirt| tshirt['options']}.map {|option| option['gender']}.uniq
+    all_tshirt_colors = all_tshirts.map {|tshirt| tshirt['options']}.map {|option| option['color']}.uniq
+    all_tshirt_sizes = all_tshirts.map {|tshirt| tshirt['options']}.map {|option| option['size']}.uniq
 
-      all_tshirts = DATA.select {|product_type| product_type['product_type'] == 'tshirt'}
-      all_tshirt_genders = all_tshirts.map {|tshirt| tshirt['options']}.map {|option| option['gender']}.uniq
-      all_tshirt_colors = all_tshirts.map {|tshirt| tshirt['options']}.map {|option| option['color']}.uniq
-      all_tshirt_sizes = all_tshirts.map {|tshirt| tshirt['options']}.map {|option| option['size']}.uniq
+    tshirt_colors = all_tshirt_colors
+    tshirt_sizes = all_tshirt_sizes
 
-      tshirt_colors = all_tshirt_colors
-      tshirt_sizes = all_tshirt_sizes
-
-      if all_tshirt_genders.include?(gender)
-        tshirt_with_gender = all_tshirts.select { |tshirt| tshirt['options']['gender'] == gender }
-        tshirt_colors = tshirt_with_gender.map { |tshirt| tshirt['options']['color'] }.uniq
-        tshirt_sizes = tshirt_with_gender.map { |tshirt| tshirt['options']['size'] }.uniq
-      elsif gender.present?
-        tshirt_colors = nil
-        tshirt_sizes = nil
-        puts "Invalid gender option: #{gender}"
-      end
+    if all_tshirt_genders.include?(gender)
+      tshirt_with_gender = all_tshirts.select { |tshirt| tshirt['options']['gender'] == gender }
+      tshirt_colors = tshirt_with_gender.map { |tshirt| tshirt['options']['color'] }.uniq
+      tshirt_sizes = tshirt_with_gender.map { |tshirt| tshirt['options']['size'] }.uniq
+    elsif gender.present?
+      tshirt_colors = nil
+      tshirt_sizes = nil
+      puts "Invalid gender option: #{gender}"
+    end
   
-      if tshirt_colors.present? && tshirt_colors.include?(color)
-        tshirt_colors = nil
-        tshirt_with_gender_color = tshirt_with_gender.select { |tshirt| tshirt['options']['color'] == color }
-        tshirt_sizes = tshirt_with_gender_color.map { |tshirt| tshirt['options']['size'] }
-      elsif all_tshirt_colors.include?(color)
-        tshirt_colors = nil
-        tshirt_sizes = nil
-        puts "Invalid color: #{color} for gender: #{gender}"
-      elsif color
-        tshirt_colors = nil
-        tshirt_sizes = nil
-        puts "Invalid color: #{color}"
-      end
+    if tshirt_colors.present? && tshirt_colors.include?(color)
+      tshirt_colors = nil
+      tshirt_with_gender_color = tshirt_with_gender.select { |tshirt| tshirt['options']['color'] == color }
+      tshirt_sizes = tshirt_with_gender_color.map { |tshirt| tshirt['options']['size'] }
+    elsif all_tshirt_colors.include?(color)
+      tshirt_colors = nil
+      tshirt_sizes = nil
+      puts "Invalid color: #{color} for gender: #{gender}"
+    elsif color
+      tshirt_colors = nil
+      tshirt_sizes = nil
+      puts "Invalid color: #{color}"
+    end
 
-      if tshirt_sizes.present? && tshirt_sizes.include?(size)
-        tshirt_sizes = nil
-        puts "No other additional options"
-      elsif all_tshirt_sizes.include?(size)
-        tshirt_sizes = nil
-        puts "Invalid size: #{size} for #{color} tshirt for #{gender}s"
-      elsif size
-        tshirt_sizes = nil
-        puts "Invalid size: #{size}"
-      end
-  
-      puts "Genders: #{all_tshirt_genders.join(', ')}" if gender.nil?
-      puts "Colors: #{tshirt_colors.join(', ')}" if tshirt_colors
-      puts "Sizes: #{tshirt_sizes.join(', ')}" if tshirt_sizes
+    if tshirt_sizes.present? && tshirt_sizes.include?(size)
+      tshirt_sizes = nil
+      puts "No other additional options"
+    elsif all_tshirt_sizes.include?(size)
+      tshirt_sizes = nil
+      puts "Invalid size: #{size} for #{color} tshirt for #{gender}s"
+    elsif size
+      tshirt_sizes = nil
+      puts "Invalid size: #{size}"
+    end
 
+    puts "Genders: #{all_tshirt_genders.join(', ')}" if gender.nil?
+    puts "Colors: #{tshirt_colors.join(', ')}" if tshirt_colors
+    puts "Sizes: #{tshirt_sizes.join(', ')}" if tshirt_sizes
   elsif product_type == 'mug'
     type = user_inputs[1]
 
@@ -85,7 +80,6 @@ def product_options
     else
       puts "Invalid type: #{type}"
     end
- 
   elsif product_type == 'sticker'
     size = user_inputs[1]
     style = user_inputs[2]
@@ -116,8 +110,7 @@ def product_options
     puts "Style: #{all_sticker_styles.uniq.join(', ')}" if style.nil? && all_sticker_styles
   else
     puts 'Invalid'
-
-    end
+  end
 end
 
 def run
