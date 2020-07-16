@@ -9,6 +9,7 @@ FILE.close
 
 def welcome
   puts 'Welcome to TeePublic!'
+  run
 end
 
 def product_options
@@ -45,7 +46,7 @@ def product_options
       if tshirt_colors.present? && tshirt_colors.include?(color)
         tshirt_colors = nil
         tshirt_with_gender_color = tshirt_with_gender.select { |tshirt| tshirt['options']['color'] == color }
-        sticker_sizes = tshirt_with_gender_color.map { |tshirt| tshirt['options']['size'] }
+        tshirt_sizes = tshirt_with_gender_color.map { |tshirt| tshirt['options']['size'] }
       elsif all_tshirt_colors.include?(color)
         tshirt_colors = nil
         tshirt_sizes = nil
@@ -111,8 +112,8 @@ def product_options
       puts "Invalid style: #{style}"
     end
 
-    puts "Sizes: #{all_sticker_sizes.join(', ')}" if size.nil?
-    puts "Style: #{all_sticker_styles.join(', ')}" if style.nil? && all_sticker_styles
+    puts "Sizes: #{all_sticker_sizes.uniq.join(', ')}" if size.nil?
+    puts "Style: #{all_sticker_styles.uniq.join(', ')}" if style.nil? && all_sticker_styles
   else
     puts 'Invalid'
 
